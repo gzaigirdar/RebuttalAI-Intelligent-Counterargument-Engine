@@ -6,7 +6,7 @@ class Sidebar:
         self.types = ["Academic", "Casual", "Social Media", "Witty"]
         self.agent_types = ["Research","Web Agent",'Fast']
         self.length_types = ['Long','Medium','Short']
-        self.response_option = ['Rebuttal','Follow up']
+        self.response_option = ['Rebuttal','Follow Up']
     def render_sidebar(self):
         st.sidebar.title('Rebuttal Preference')
         self.response_type = st.sidebar.selectbox('Select a Response Type', self.response_option)

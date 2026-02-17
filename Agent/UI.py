@@ -66,6 +66,9 @@ if 'follow_up' not in st.session_state:
 st.title("Rebuttal AI Chat")
 st.subheader("Enter your argument to generate a counter argument")
 
+for msg in st.session_state.messages:
+    chat.render_chat(role=msg["role"],content=msg["content"],type=msg['type'])
+
 
 if prompt := st.chat_input("Enter your argument..."):
    with st.spinner(text="In progress...", show_time=False, width="content"):
@@ -75,15 +78,12 @@ if prompt := st.chat_input("Enter your argument..."):
                 res = agent_router(sidebar.AI_type,prompt=prompt)
                 st.session_state.messages.append({"role": "assistant", "content": res,'type':sidebar.response_type})
         else:
-                print(sidebar.response_type)
+               
                 st.session_state.messages.append({"role": "user", "content": prompt,'type':sidebar.response_type}) 
                 res = agent_router(agent_type='Follow Up',prompt=prompt,history=st.session_state.messages)
                 st.session_state.messages.append({"role": "assistant", "content": res,'type':sidebar.response_type})
 
-
-
-for msg in st.session_state.messages:
-    chat.render_chat(role=msg["role"],content=msg["content"],type=msg['type'])
+ 
 
 
 
