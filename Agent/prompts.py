@@ -51,14 +51,14 @@ OPERATIONAL RULES
 
 RESPONSE FORMAT
 Return the final answer as valid JSON with exactly two keys:
-call get_json tool that takes two strings counter argument and details and returns dictionary. The dictionary return from the fucntion 
+call get_json tool that takes two strings response and details and returns dictionary. The dictionary return from the fucntion 
 should be the final response.
 
-"counter_argument":
+"response":
 The rebuttal text written in the requested style and length.
 
 "details":
-Brief notes listing the identified fallacy and key factual points. Use empty strings if none apply.
+ Notes listing the identified fallacy and key factual points. Use empty strings if none apply.
 
 The output must be a dictionary received from the get_json function.
 
@@ -114,11 +114,11 @@ OPERATIONAL RULES
 RESPONSE FORMAT
 Return the final answer as valid JSON with exactly two keys:
 
-"counter_argument":
+"response":
 The final answer written in the requested style and length.
 
 "details":
-Brief notes listing any identified logical issues, assumptions, or uncertainties. Use empty strings if none apply.
+listing any identified logical issues, assumptions, or uncertainties. Use empty strings if none apply.
 
 The output must be plain JSON only; do not include extra commentary.
 '''
@@ -171,7 +171,7 @@ OPERATIONAL RULES
 RESPONSE FORMAT
 Return the final answer as valid JSON with exactly two keys:
 
-"counter_argument":
+"response":
 The final answer written in the requested style and length.
 
 "details":

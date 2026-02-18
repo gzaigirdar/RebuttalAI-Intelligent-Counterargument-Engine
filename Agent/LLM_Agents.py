@@ -6,7 +6,9 @@ from LLM_Tools import search,wiki_summary,logical_fallacies_retriever,get_json
 from prompts import research_system_prompt,web_search_agent_prompt,quick_response_system_prompt,follow_up_system_instructions
 from langchain_ollama import ChatOllama
 from langchain.agents import create_agent
+from langchain_community.llms.fake import FakeListLLM
 from langchain_core.output_parsers import JsonOutputParser
+import time
 path = Path('/home/gz/Documents/Rebuttal AI/.env')
 load_dotenv(dotenv_path=path)
 api_token = os.environ['HUGGING_FACE_API_TOKEN']
@@ -21,12 +23,12 @@ class Agent:
                     huggingfacehub_api_token=api_token
                 )'''
         
-        self.llm = ChatOllama(model='qwen3:8b', temperature=0,num_ctx=4100)
+        #self.llm = ChatOllama(model='qwen3:8b', temperature=0,num_ctx=4100)
         self.parser = JsonOutputParser()
 
         
         #ChatHuggingFace(llm=self.hf_model)
-        self.research_Agent = create_agent(
+        '''self.research_Agent = create_agent(
             model=self.llm,
             tools=[search,logical_fallacies_retriever,wiki_summary,get_json],
             system_prompt=research_system_prompt,
@@ -38,7 +40,7 @@ class Agent:
             tools=[search], 
             system_prompt=web_search_agent_prompt
 
-        )
+        ) '''
     
     
     def debug_get_agent_response(self, inputs,agent):  
@@ -108,6 +110,29 @@ class Agent:
         ("human", prompt),]
         result = self.llm.invoke(messages)
         return result.content
+    def MockLLMCall(self,claim):
+        fake_json2 = {
+            "response": "Recent studies indicate that human-driven deforestation and fossil fuel use are major factors accelerating climate change worldwide.",
+            "details": {
+                "title": "Drivers of Modern Climate Change",
+                "authors": ["Maria Gonzalez", "Li Wei"],
+                "year": 2021,
+                "citations": 98,
+                "url": "https://doi.org/fake2"
+            }
+        }
+        fake_json = {
+            "response": "Human activities, particularly the emission of greenhouse gases, have significantly contributed to global climate change over the past century.",
+            "details": {
+                "title": "Human Impact on Climate Change",
+                "authors": ["Jane Smith", "Alan Doe"],
+                "year": 2022,
+                "citations": 134,
+                "url": "https://doi.org/fake1"
+            }
+        }
+        time.sleep(8)
+        return fake_json2
 
 
         

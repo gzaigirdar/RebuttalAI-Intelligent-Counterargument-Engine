@@ -5,7 +5,7 @@ from LLM_Agents import Agent
 from streamlit_extras.stylable_container import stylable_container   
 agent = Agent()
 def agent_router(agent_type,prompt,history=None):
-    match agent_type:
+    '''match agent_type:
         case 'Research':
             return agent.research_agent_response(claim=prompt)
         case "Web Agent":
@@ -13,8 +13,9 @@ def agent_router(agent_type,prompt,history=None):
         case "Fast":
             return agent.fast_agent_response(claim=prompt)
         case "Follow Up":
-            return agent.follow_up(history,question=prompt)
-        
+            return agent.follow_up(history,question=prompt)'''
+    return agent.MockLLMCall(claim=prompt)
+  
 
 page_bg_image = """
 <style>
@@ -45,7 +46,10 @@ page_bg_image = """
   
     background-color: rgba(0,0,0,0) !important;
 }
-
+	#202020
+.st-emotion-cache-1s4g1qq e1x5aka44{
+background-color: #202020 !important;
+}
 </style>
 """
 st.markdown(page_bg_image, unsafe_allow_html=True)
@@ -66,8 +70,10 @@ if 'follow_up' not in st.session_state:
 st.title("Rebuttal AI Chat")
 st.subheader("Enter your argument to generate a counter argument")
 
+
 for msg in st.session_state.messages:
     chat.render_chat(role=msg["role"],content=msg["content"],type=msg['type'])
+
 
 
 if prompt := st.chat_input("Enter your argument..."):
@@ -77,13 +83,15 @@ if prompt := st.chat_input("Enter your argument..."):
                 prompt = f'claim:{prompt} \n style:{sidebar.debate_style}\n length:{sidebar.length}'
                 res = agent_router(sidebar.AI_type,prompt=prompt)
                 st.session_state.messages.append({"role": "assistant", "content": res,'type':sidebar.response_type})
+                
         else:
                
                 st.session_state.messages.append({"role": "user", "content": prompt,'type':sidebar.response_type}) 
                 res = agent_router(agent_type='Follow Up',prompt=prompt,history=st.session_state.messages)
                 st.session_state.messages.append({"role": "assistant", "content": res,'type':sidebar.response_type})
+        st.rerun()
+    
 
- 
 
 
 

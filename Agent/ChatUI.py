@@ -42,7 +42,7 @@ class ChatBubble:
         
         else:
             if role == "assistant":
-                counter_argument = content["counter_argument"]
+                counter_argument = content["response"]
                 chat_box= self.chat_style.format(bg_color=bg_color,align="center",content=counter_argument)
                 details = content['details']
                 st.markdown(
