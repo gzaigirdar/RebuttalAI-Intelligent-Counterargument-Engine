@@ -3,61 +3,66 @@ class ChatBubble:
     def __init__(self,bg_color=None):
         self.bg_color = None
         self.align = None
-        self.chat_style ='''
+        self.chat_style = '''
             <div style="
-                background-color: {bg_color};
-                color:white;
-                padding:10px;
-                border-radius:15px;
-                max-width:100%;
-                margin-{align}:auto;
-                margin-bottom:15px;
+                background: {bg_color}; 
+                padding: 10px;
+                border-radius: 11px;
+                max-width: 90%;
+                margin-{align}: auto;
+                margin-bottom: 2px;
+                font-family: 'Courier New', Courier, monospace;
+                font-weight: 300;
+                font-color: black; 
+                line-height: 1.5;
+                box-shadow: inset 11px 11px 22px #0d212d, 
+                            inset -11px -11px 22px #173b53;
+                border: 1px solid rgba(255, 255, 255, 0.1);
             ">
                 {content}
             </div>
-
-        ''' 
+        '''
+        
     def render_chat(self,role,content,type="Rebuttal"):
       
-        bg_color = self.bg_color or ("#1D9A5DA0" if role == "user" else "#1C0A09")
-        #align = "right" if role == "user" else "left"  
-        if type == 'Follow Up':
-            if role == "assistant":
-                
-                chat_box= self.chat_style.format(bg_color=bg_color,align="center",content=content)
-              
-                st.markdown(
-                    chat_box
-                    , unsafe_allow_html=True
-                )
-                
-            else:
-                chat_box= self.chat_style.format(bg_color=bg_color,align="center",content=content)
-                st.markdown(
-                    chat_box,
-                    unsafe_allow_html=True
-                )
-    
-            
-        
-        else:
-            if role == "assistant":
+        bg_color = self.bg_color or ("#a0888a" if role == "user" else "#122e40")
+        align = "right" if role == "user" else "left"  
+        if role == "assistant":
+            if type == 'Rebuttal':
                 counter_argument = content["response"]
-                chat_box= self.chat_style.format(bg_color=bg_color,align="center",content=counter_argument)
+                chat_box= self.chat_style.format(align=align,content=counter_argument,bg_color=bg_color)
                 details = content['details']
                 st.markdown(
                     chat_box
                     , unsafe_allow_html=True
                 )
+                
                 with st.expander(f'Additional Details'):
                     st.write(details)
+
+
+
             else:
-                chat_box= self.chat_style.format(bg_color=bg_color,align="center",content=content)
-                st.markdown(
-                    chat_box,
-                    unsafe_allow_html=True
-                )
+                 chat_box= self.chat_style.format(align=align,content=content,bg_color=bg_color)
+                
+                 st.markdown(
+                        chat_box
+                        , unsafe_allow_html=True
+                    )
+           
+                
+
+            
+        else:
+            chat_box= self.chat_style.format(align=align,content=content,bg_color=bg_color)
+            st.markdown(
+                chat_box,
+                unsafe_allow_html=True
+            )
+                
+
     
+  
 
     
     

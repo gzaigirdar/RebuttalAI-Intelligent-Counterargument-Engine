@@ -76,10 +76,10 @@ def logical_fallacies_retriever(query: str) -> str:
 @tool 
 def get_json(details:str,response:str) -> dict:
     """
-    returns python dictionary witt details and counter argument
+    returns python dictionary witt details and response
 
     Args:
-        counter_argument: takes the counter argument to the claim as str.
+        response: takes the counter argument to the claim as str.
         details: takes details assosiated with the coutner argument as str.
     """
     return {

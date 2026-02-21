@@ -3,9 +3,13 @@ from ChatUI import ChatBubble
 from SidebarUI import Sidebar
 from LLM_Agents import Agent
 from streamlit_extras.stylable_container import stylable_container   
+from requestsLimiter import RateLimiter
+
+limiter = RateLimiter()
+limiter._init_db()
 agent = Agent()
 def agent_router(agent_type,prompt,history=None):
-    '''match agent_type:
+    match agent_type:
         case 'Research':
             return agent.research_agent_response(claim=prompt)
         case "Web Agent":
@@ -13,9 +17,11 @@ def agent_router(agent_type,prompt,history=None):
         case "Fast":
             return agent.fast_agent_response(claim=prompt)
         case "Follow Up":
-            return agent.follow_up(history,question=prompt)'''
-    return agent.MockLLMCall(claim=prompt)
+            return agent.follow_up(history,question=prompt)
+    
   
+
+
 
 page_bg_image = """
 <style>
@@ -26,11 +32,13 @@ page_bg_image = """
     background-repeat: no-repeat !important;
 }
 [data-testid="stHeader"]{
-    background-color: rgba(0,0,0,0)
+    
+    padding: 0px !important;
 
 }
 [data-testid="stMainBlockContainer"]{
     padding: 0px;
+    margin-top: 45px !important;
 }
 [data-testid="stBottom"]{
     background-color: rgba(0,0,0,0) !important;
@@ -40,21 +48,64 @@ page_bg_image = """
 }
 
 [data-testid="stBottomBlockContainer"]{
-    padding: 0px !important;
+    padding: 5px !important;
 }
-.st-emotion-cache-hzygls {
-  
-    background-color: rgba(0,0,0,0) !important;
+
+	
+
+[data-testid="stBottom"] > div {
+background-color: rgba(0,0,0,0) !important;
+
 }
-	#202020
-.st-emotion-cache-1s4g1qq e1x5aka44{
-background-color: #202020 !important;
+      
+
+
+[data-testid="stHeadingWithActionElements"] > h3{
+     padding: 0px !important;
+
+
+
+
 }
+
+
+[data-testid="stExpander"]{
+    background-color: black !important;
+    color: white !important;
+    border-radius: 5px;
+    margin-left: auto  !important;
+    width: 90% !important;;
+}
+[data-testid="stElementContainer"]{
+ padding:0px !important;
+
+}
+[data-testid="stHeading"]{
+    padding:0px !important;
+    
+
+
+}
+
+[data-testid="stIconMaterial"] {
+ color:yellow !important;
+ min-width: 2.75rem !important;
+ font-size: 2.75rem !important; 
+ 
+[data-testid="stHeadingWithActionElements"] > h2 > span {
+    font-weight: 300 !important; 
+
+}
+
+
+
+/*  chat container  */
+
 </style>
 """
-st.markdown(page_bg_image, unsafe_allow_html=True)
 
-st.set_page_config(page_title="Rebuttal Ai", page_icon="🤖", layout="centered", initial_sidebar_state='expanded')
+
+st.set_page_config( page_title='Rebuttal ai', page_icon="🤖", layout="centered", initial_sidebar_state='auto')
 st.markdown(page_bg_image,unsafe_allow_html=True)
 chat = ChatBubble()
 sidebar = Sidebar()
@@ -64,15 +115,120 @@ sidebar.render_sidebar()
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-if 'follow_up' not in st.session_state:
-    st.session_state.follow_up = []
 
-st.title("Rebuttal AI Chat")
-st.subheader("Enter your argument to generate a counter argument")
+with stylable_container(
+    key="header_section",
+    css_styles="""
+        {
+            background: rgba(32, 13, 13, 0.10);
+            backdrop-filter: blur(4.0px);
+            -webkit-backdrop-filter: blur(4.0px);
+            border: 1px solid rgba(17, 24, 23, 0.47);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            padding: 0px !important;
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 0.30rem !important;
+            margin-bottom: 0px;
+            margin-top: 0px !important;
+        }
+        [data-testid="stIconMaterial"] {
+            color: red !important;
+            font-size: 2rem !important;
+        }
+        [data-testid="stText"] > span {
+        color: green !important;
+        text-align: center !important;
+        
+           
+
+        
+        
+        }
+        
+        h2, h3, h4 {
+            font-weight: 300 !important;
+            text-align: center !important;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5) !important;
+            letter-spacing: 0.5px !important;
+        }
+
+        h2 {
+            color: #ffffff !important;
+            font-size: 36px !important;
+            font-family: "Segoe UI", "Helvetica Neue", sans-serif !important;
+            margin: 10px 0 10px 0 !important;
+            padding: 5px !important;
+            text-transform: uppercase !important;
+            letter-spacing: 2px !important;
+        }
+
+        h3 {
+            color: #d4d4d4 !important;
+            font-size: 18px !important;
+            font-family: "Segoe UI", "Helvetica Neue", sans-serif !important;
+            margin: 6px 0 !important;
+            padding: 5px !important;
+            font-weight: 300 !important;
+            opacity: 0.9 !important;
+        }
+        h4 {
+            color: red !important;
+            font-size: 10px !important;
+            font-family: "Segoe UI", "Helvetica Neue", sans-serif !important;
+            margin: 0px 15px 15px 15px !important;
+            padding: 2px 5px !important;
+            font-weight: bold !important;
+            font-style: italic !important;
+            opacity: 0.9 !important;
+        }
+        [data-testid="stSelectboxVirtualDropdown"] > div > div > li:hover {
+            background-color: red !important;
+        }
+        
+
+    """,
+):
+    st.header('Rebuttal Ai')
+    st.subheader("Enter a Claim To Generate A Counter Argument")
+    st.markdown("#### Open Sidebar To Select Preference.")
 
 
-for msg in st.session_state.messages:
-    chat.render_chat(role=msg["role"],content=msg["content"],type=msg['type'])
+with st.container():
+    for msg in st.session_state.messages:
+        chat.render_chat(role=msg["role"],content=msg["content"],type=msg['type'])
+    
+st.components.v1.html(
+    """
+  <script>
+    const scrollToBottom = () => {
+        const container = document.querySelector('[data-testid="stVerticalBlock"]');
+        if (container) {
+            // Scroll to bottom minus 100px offset (adjust value as needed)
+            container.scrollTop = container.scrollHeight - 100;
+        }
+    };
+
+    
+    setTimeout(scrollToBottom, 300);
+
+    
+    const observer = new MutationObserver(() => {
+        setTimeout(scrollToBottom, 350);
+    });
+
+    const targetNode = document.querySelector('[data-testid="stVerticalBlock"]');
+    if (targetNode) {
+        observer.observe(targetNode, { 
+            childList: true, 
+            subtree: true 
+        });
+    }
+  </script>
+    """,
+    height=0,)
 
 
 

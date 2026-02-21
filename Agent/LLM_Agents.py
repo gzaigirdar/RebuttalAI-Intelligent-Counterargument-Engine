@@ -8,29 +8,35 @@ from langchain_ollama import ChatOllama
 from langchain.agents import create_agent
 from langchain_community.llms.fake import FakeListLLM
 from langchain_core.output_parsers import JsonOutputParser
+from langchain_groq import ChatGroq;
 import time
 path = Path('/home/gz/Documents/Rebuttal AI/.env')
 load_dotenv(dotenv_path=path)
-api_token = os.environ['HUGGING_FACE_API_TOKEN']
+api_token = os.environ['GROQ_API_TOKEN']
 # 'openai/gpt-oss-120b'
 class Agent:
 
     def __init__(self):
         '''self.hf_model = HuggingFaceEndpoint(
-                    repo_id='openai/gpt-oss-120b',
+                    repo_id='openai/gpt-oss-20b',
                     task="conversational",
                     max_new_tokens=2000,
                     huggingfacehub_api_token=api_token
                 )'''
         
-        #self.llm = ChatOllama(model='qwen3:8b', temperature=0,num_ctx=4100)
+        #self.llm = ChatOllama(model='qwen3:8b', temperature=0,num_ctx=5000)
+        self.llm = ChatGroq(
+                   api_key=api_token,
+                   model='openai/gpt-oss-20b',
+                   max_tokens=5000
+        )
         self.parser = JsonOutputParser()
 
         
         #ChatHuggingFace(llm=self.hf_model)
-        '''self.research_Agent = create_agent(
+        self.research_Agent = create_agent(
             model=self.llm,
-            tools=[search,logical_fallacies_retriever,wiki_summary,get_json],
+            tools=[search,logical_fallacies_retriever,wiki_summary],
             system_prompt=research_system_prompt,
             
 
@@ -40,7 +46,7 @@ class Agent:
             tools=[search], 
             system_prompt=web_search_agent_prompt
 
-        ) '''
+        ) 
     
     
     def debug_get_agent_response(self, inputs,agent):  
@@ -75,6 +81,8 @@ class Agent:
     
         result = self.research_Agent.invoke(prompt)
         response = result["messages"][-1].content
+        tool_calls = result.get("tool_calls", [])
+        print(tool_calls)
         return self.parser.parse(response)
         
         
@@ -131,7 +139,7 @@ class Agent:
                 "url": "https://doi.org/fake1"
             }
         }
-        time.sleep(8)
+        time.sleep(1)
         return fake_json2
 
 
@@ -139,23 +147,23 @@ class Agent:
 
 user_input = f"""
                   Claim:
-                    Water boils at 100°C at sea level, so you don’t need a thermometer to know when it’s boiling.
+                    Tariffs on imported goods always protect local jobs and boost domestic businesses.
 
                     Requested style:
-                    Social Media
+                    Academic
 
                     Requested length:
-                    short
+                    Long
 
                     """
 
 
 
+
+
 '''
 agent = Agent()
-#agent.debug_get_agent_response(user_input,agent.research_Agent)
-
-
+agent.debug_get_agent_response(user_input,agent.research_Agent)
 res = agent.research_agent_response(claim=user_input)
 print(res)
 print(res['details'])
