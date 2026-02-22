@@ -1,10 +1,13 @@
 import streamlit as st
+from langchain_core.output_parsers import StrOutputParser
+import markdown
 class ChatBubble:
     def __init__(self,bg_color=None):
         self.bg_color = None
         self.align = None
+        self.parser = StrOutputParser()
         self.chat_style = '''
-            <div style="
+            <div id='chat_text' style="
                 background: {bg_color}; 
                 padding: 10px;
                 border-radius: 11px;
@@ -29,14 +32,15 @@ class ChatBubble:
         align = "right" if role == "user" else "left"  
         if role == "assistant":
             if type == 'Rebuttal':
-                counter_argument = content["response"]
+               
+                counter_argument = markdown.markdown(content["response"])
                 chat_box= self.chat_style.format(align=align,content=counter_argument,bg_color=bg_color)
                 details = content['details']
                 st.markdown(
                     chat_box
                     , unsafe_allow_html=True
                 )
-                
+             
                 with st.expander(f'Additional Details'):
                     st.write(details)
 
@@ -54,6 +58,7 @@ class ChatBubble:
 
             
         else:
+            content = markdown.markdown(content)
             chat_box= self.chat_style.format(align=align,content=content,bg_color=bg_color)
             st.markdown(
                 chat_box,

@@ -24,7 +24,7 @@ db_retriever = vector_db.as_retriever(
 )
 
 @tool
-def search(query):
+def search(query:str) -> str:
     """
     Search the web for current facts, events, news, or general information.
     """
@@ -48,13 +48,13 @@ def wiki_summary(query: str, num_chars: int = 3000) -> str:
 '''
 
 @tool
-def wiki_summary(query: str, num_chars: int = 2000) -> str:
+def wiki_summary(query: str) -> str:
     """
     Retrieve a concise summary of a topic from Wikipedia.
 
     Args:
         query: Topic or entity to search for.
-        num_chars: Maximum number of characters to return.
+        
     """
     docs = wikipedia_tool.run(query)
     if not docs:

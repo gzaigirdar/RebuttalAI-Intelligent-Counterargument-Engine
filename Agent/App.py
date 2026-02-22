@@ -9,6 +9,7 @@ limiter = RateLimiter()
 limiter._init_db()
 agent = Agent()
 def agent_router(agent_type,prompt,history=None):
+    
     match agent_type:
         case 'Research':
             return agent.research_agent_response(claim=prompt)
@@ -99,7 +100,7 @@ background-color: rgba(0,0,0,0) !important;
 
 
 
-/*  chat container  */
+
 
 </style>
 """
@@ -233,20 +234,22 @@ st.components.v1.html(
 
 
 if prompt := st.chat_input("Enter your argument..."):
-   with st.spinner(text="In progress...", show_time=False, width="content"):
-        if sidebar.response_type == 'Rebuttal':
-                st.session_state.messages.append({"role": "user", "content": prompt,'type':sidebar.response_type}) 
-                prompt = f'claim:{prompt} \n style:{sidebar.debate_style}\n length:{sidebar.length}'
-                res = agent_router(sidebar.AI_type,prompt=prompt)
-                st.session_state.messages.append({"role": "assistant", "content": res,'type':sidebar.response_type})
-                
-        else:
-               
-                st.session_state.messages.append({"role": "user", "content": prompt,'type':sidebar.response_type}) 
-                res = agent_router(agent_type='Follow Up',prompt=prompt,history=st.session_state.messages)
-                st.session_state.messages.append({"role": "assistant", "content": res,'type':sidebar.response_type})
-        st.rerun()
-    
+      if limiter.is_limit_reached():
+        st.error('maxium number of requests has been met, try in an hour.')
+      else:
+        with st.spinner(text="In progress...", show_time=False, width="content"):
+                if sidebar.response_type == 'Rebuttal':
+                        st.session_state.messages.append({"role": "user", "content": prompt,'type':sidebar.response_type}) 
+                        prompt = f'claim:{prompt} \n style:{sidebar.debate_style}\n length:{sidebar.length}'
+                        res = agent_router(sidebar.AI_type,prompt=prompt)
+                        st.session_state.messages.append({"role": "assistant", "content": res,'type':sidebar.response_type})
+                        
+                else:
+                    
+                        st.session_state.messages.append({"role": "user", "content": prompt,'type':sidebar.response_type}) 
+                        res = agent_router(agent_type='Follow Up',prompt=prompt,history=st.session_state.messages)
+                        st.session_state.messages.append({"role": "assistant", "content": res,'type':sidebar.response_type})
+                st.rerun()
 
 
 

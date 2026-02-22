@@ -3,7 +3,7 @@ import time
 
 class RateLimiter:
     def __init__(self):
-        self.limit_size = 100
+        self.limit_size = 500
         self.db_path = "rate_limit_db.sqlite"
         self.window_max = 3600
         self._init_db() 

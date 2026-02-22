@@ -31,6 +31,7 @@ class Agent:
                    max_tokens=5000
         )
         self.parser = JsonOutputParser()
+        
 
         
         #ChatHuggingFace(llm=self.hf_model)
