@@ -7,7 +7,7 @@ class ChatBubble:
         self.align = None
         self.parser = StrOutputParser()
         self.chat_style = '''
-            <div id='chat_text' style="
+            <div class={id} style="
                 background: {bg_color}; 
                 padding: 10px;
                 border-radius: 11px;
@@ -26,7 +26,7 @@ class ChatBubble:
             </div>
         '''
         
-    def render_chat(self,role,content,type="Rebuttal"):
+    def render_chat(self,role,content,id,type="Rebuttal"):
       
         bg_color = self.bg_color or ("#a0888a" if role == "user" else "#122e40")
         align = "right" if role == "user" else "left"  
@@ -34,7 +34,7 @@ class ChatBubble:
             if type == 'Rebuttal':
                
                 counter_argument = markdown.markdown(content["response"])
-                chat_box= self.chat_style.format(align=align,content=counter_argument,bg_color=bg_color)
+                chat_box= self.chat_style.format(align=align,content=counter_argument,bg_color=bg_color,id=f"chat_{id}")
                 details = content['details']
                 st.markdown(
                     chat_box
@@ -47,7 +47,7 @@ class ChatBubble:
 
 
             else:
-                 chat_box= self.chat_style.format(align=align,content=content,bg_color=bg_color)
+                 chat_box= self.chat_style.format(align=align,content=content,bg_color=bg_color,id=f"chat_{id}")
                 
                  st.markdown(
                         chat_box
@@ -59,7 +59,7 @@ class ChatBubble:
             
         else:
             content = markdown.markdown(content)
-            chat_box= self.chat_style.format(align=align,content=content,bg_color=bg_color)
+            chat_box= self.chat_style.format(align=align,content=content,bg_color=bg_color,id=f"chat_{id}")
             st.markdown(
                 chat_box,
                 unsafe_allow_html=True

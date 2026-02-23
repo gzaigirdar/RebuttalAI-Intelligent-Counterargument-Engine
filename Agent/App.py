@@ -4,6 +4,8 @@ from SidebarUI import Sidebar
 from LLM_Agents import Agent
 from streamlit_extras.stylable_container import stylable_container   
 from requestsLimiter import RateLimiter
+import streamlit.components.v1 as components
+
 
 limiter = RateLimiter()
 limiter._init_db()
@@ -19,6 +21,8 @@ def agent_router(agent_type,prompt,history=None):
             return agent.fast_agent_response(claim=prompt)
         case "Follow Up":
             return agent.follow_up(history,question=prompt)
+    
+    #return agent.MockLLMCall(prompt)
     
   
 
@@ -104,7 +108,7 @@ background-color: rgba(0,0,0,0) !important;
 
 </style>
 """
-
+ids = 0
 
 st.set_page_config( page_title='Rebuttal ai', page_icon="🤖", layout="centered", initial_sidebar_state='auto')
 st.markdown(page_bg_image,unsafe_allow_html=True)
@@ -188,7 +192,9 @@ with stylable_container(
         [data-testid="stSelectboxVirtualDropdown"] > div > div > li:hover {
             background-color: red !important;
         }
-        
+        [data-testid="stMainBlockContainer"] {
+        overflow-anchor: none !important;
+    }
 
     """,
 ):
@@ -196,63 +202,75 @@ with stylable_container(
     st.subheader("Enter a Claim To Generate A Counter Argument")
     st.markdown("#### Open Sidebar To Select Preference.")
 
-
-with st.container():
-    for msg in st.session_state.messages:
-        chat.render_chat(role=msg["role"],content=msg["content"],type=msg['type'])
-    
-st.components.v1.html(
-    """
-  <script>
-    const scrollToBottom = () => {
-        const container = document.querySelector('[data-testid="stVerticalBlock"]');
-        if (container) {
-            // Scroll to bottom minus 100px offset (adjust value as needed)
-            container.scrollTop = container.scrollHeight - 100;
-        }
-    };
-
-    
-    setTimeout(scrollToBottom, 300);
-
-    
-    const observer = new MutationObserver(() => {
-        setTimeout(scrollToBottom, 350);
-    });
-
-    const targetNode = document.querySelector('[data-testid="stVerticalBlock"]');
-    if (targetNode) {
-        observer.observe(targetNode, { 
-            childList: true, 
-            subtree: true 
-        });
-    }
-  </script>
-    """,
-    height=0,)
+for msg in st.session_state.messages:
+        chat.render_chat(role=msg["role"], content=msg["content"], type=msg["type"],id=msg['id'])
 
 
+
+chat_holder = st.container()
 
 if prompt := st.chat_input("Enter your argument..."):
-      if limiter.is_limit_reached():
-        st.error('maxium number of requests has been met, try in an hour.')
-      else:
-        with st.spinner(text="In progress...", show_time=False, width="content"):
-                if sidebar.response_type == 'Rebuttal':
-                        st.session_state.messages.append({"role": "user", "content": prompt,'type':sidebar.response_type}) 
-                        prompt = f'claim:{prompt} \n style:{sidebar.debate_style}\n length:{sidebar.length}'
-                        res = agent_router(sidebar.AI_type,prompt=prompt)
-                        st.session_state.messages.append({"role": "assistant", "content": res,'type':sidebar.response_type})
-                        
-                else:
-                    
-                        st.session_state.messages.append({"role": "user", "content": prompt,'type':sidebar.response_type}) 
-                        res = agent_router(agent_type='Follow Up',prompt=prompt,history=st.session_state.messages)
-                        st.session_state.messages.append({"role": "assistant", "content": res,'type':sidebar.response_type})
-                st.rerun()
+    if limiter.is_limit_reached():
+        st.error('Maximum number of requests met.')
+    else:
+        user_id = ids + 1 
+        ids += 1
 
+        with chat_holder:
+            chat.render_chat(role="user", content=prompt, type=sidebar.response_type,id= user_id)
 
+        st.session_state.messages.append({"role": "user", "content": prompt, 'type': sidebar.response_type,'id':user_id})
 
+        with st.spinner("In progress..."):
+            if sidebar.response_type == 'Rebuttal':
+                agent_prompt = f'claim:{prompt} \n style:{sidebar.debate_style}\n length:{sidebar.length}'
+                res = agent_router(sidebar.AI_type, prompt=agent_prompt)
+            else:
+                res = agent_router(agent_type='Follow Up', prompt=prompt, history=st.session_state.messages)
 
+            
+            bot_id = ids + 1
+            ids += 1
+            with chat_holder:
+                chat.render_chat(role="assistant", content=res, type=sidebar.response_type,id=bot_id)
+                
+                
+                
+            
+                
+                
+                
+                
+                
+                
+                
+                components.html(
+                    """
+                    <script>
+                    setTimeout(() => {
+                        console.log("Scroll script running...");
+                        var parentDoc = window.parent.document;
+                        var chats = parentDoc.querySelectorAll("[class^='chat_']");
+                        console.log("Number of chat bubbles found:", chats.length);
 
- 
+                        if(chats.length > 1) {  // Ensure there are at least two messages
+                            var secondLastChat = chats[chats.length - 2];
+                            console.log("Scrolling second-to-last chat bubble:", secondLastChat.className);
+                            secondLastChat.scrollIntoView({behavior: "smooth", block: "start"});
+                        }
+                    }, 500);
+                    </script>
+                    """,
+                    height=0,
+                )
+                
+                
+                
+               
+
+                st.session_state.messages.append({"role": "assistant", "content": res, 'type': sidebar.response_type,'id':bot_id})
+            
+            
+
+           
+        
