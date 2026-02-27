@@ -11,3 +11,4 @@ langchain-huggingface
 markdown
 faiss-cpu
 langchain_groq
+streamlit_extras
