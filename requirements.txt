@@ -10,3 +10,4 @@ langchain-core
 langchain-huggingface
 markdown
 faiss-cpu
+langchain_groq
