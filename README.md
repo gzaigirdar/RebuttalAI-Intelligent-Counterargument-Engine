@@ -1,6 +1,9 @@
-Rebuttal AI – Agentic Counterargument System
+## Rebuttal AI – Agentic Counterargument System
 
 Rebuttal AI is an agentic AI system designed to autonomously generate fact driven counterarguments to user provided statements or claims. Using integrated tools such as web search, Wikipedia summaries, and a logical fallacies knowledge base. Rebuttal AI analyzes claims and produces structured, evidence backed rebuttals without requiring any additional instructions from the user.
+
+### Demo App is deployed in streamlit  cloud:
+[App link](https://refuteai.streamlit.app/)
 
 User Interaction:
 Users interact with Rebuttal AI in a simple, intuitive way by prroviding a claim or statement.
