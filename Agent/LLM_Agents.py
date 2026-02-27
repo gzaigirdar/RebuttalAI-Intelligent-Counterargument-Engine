@@ -5,7 +5,7 @@ from langchain.agents import create_agent
 from langchain_core.output_parsers import JsonOutputParser
 from langchain_groq import ChatGroq;
 import time
-api_token = st.secret['GROQ_API_TOKEN']
+api_token = st.secrets['GROQ_API_TOKEN']
 
 
 class Agent:
