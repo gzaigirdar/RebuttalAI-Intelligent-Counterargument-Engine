@@ -4,19 +4,16 @@ from langchain.tools import tool
 from langchain_community.vectorstores import FAISS
 from langchain_community.embeddings import OllamaEmbeddings
 from langchain_community.utilities import WikipediaAPIWrapper
-
+from pathlib import Path
 
 api_wrapper = WikipediaAPIWrapper(top_k_results=2, doc_content_chars_max=2000)
 wikipedia_tool = WikipediaQueryRun(api_wrapper=api_wrapper)
 search_tool = DuckDuckGoSearchRun()
 #wiki_retriever = WikipediaRetriever()
 embedding_model = OllamaEmbeddings(model="qwen3-embedding:0.6b")
+db_path = Path(__file__).parent / "Logical_Fallacies_DB"
 
-vector_db = FAISS.load_local(
-    "/home/gz/Documents/Rebuttal AI/Agent/Logical_Fallacies_DB",
-    embedding_model,
-    allow_dangerous_deserialization=True,  # trusted local DB only
-)
+vector_db = FAISS.load_local(db_path, embedding_model, allow_dangerous_deserialization=True)
 
 db_retriever = vector_db.as_retriever(
     search_type="similarity",
