@@ -4,9 +4,19 @@ from SidebarUI import Sidebar
 from LLM_Agents import Agent
 from streamlit_extras.stylable_container import stylable_container   
 from requestsLimiter import RateLimiter
-import streamlit.components.v1 as components
+import streamlit.components
+import base64
+from pathlib import Path
 
 
+parent_dir = Path(__file__).resolve().parent
+image_path = parent_dir/'bg_image.png'
+def get_base64_image(path):
+    with open(path, "rb") as f:
+        data = f.read()
+    return base64.b64encode(data).decode()
+
+img_base64 = get_base64_image(image_path)
 limiter = RateLimiter()
 limiter._init_db()
 agent = Agent()
@@ -24,14 +34,14 @@ def agent_router(agent_type,prompt,history=None):
     
     #return agent.MockLLMCall(prompt)
     
-  
+image_url = "https://images.pexels.com/photos/2908984/pexels-photo-2908984.jpeg?_gl=1*1vk7xs0*_ga*MTY5OTYxMTQ2OC4xNzcwOTU4NDU2*_ga_8JE65Q40S6*czE3NzA5NjUyNTUkbzMkZzEkdDE3NzA5NjUzMDQkajExJGwwJGgw"
 
 
 
 page_bg_image = """
 <style>
 [data-testid="stAppViewContainer"] {
-    background-image: url("https://images.pexels.com/photos/2908984/pexels-photo-2908984.jpeg?_gl=1*1vk7xs0*_ga*MTY5OTYxMTQ2OC4xNzcwOTU4NDU2*_ga_8JE65Q40S6*czE3NzA5NjUyNTUkbzMkZzEkdDE3NzA5NjUzMDQkajExJGwwJGgw") !important;
+    background-image: url("data:image/png;base64,BASE64_IMAGE") !important;
     background-size: cover !important;
     background-position: center !important;
     background-repeat: no-repeat !important;
@@ -104,11 +114,12 @@ background-color: rgba(0,0,0,0) !important;
 
 
 
-
-
 </style>
 """
+print(image_path)
+page_bg_image = page_bg_image.replace('BASE64_IMAGE', img_base64)
 ids = 0
+
 
 st.set_page_config( page_title='Rebuttal ai', page_icon="🤖", layout="centered", initial_sidebar_state='auto')
 st.markdown(page_bg_image,unsafe_allow_html=True)
