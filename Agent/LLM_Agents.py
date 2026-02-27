@@ -1,30 +1,18 @@
-import os
-from dotenv import load_dotenv
-from pathlib import Path
-from langchain_huggingface import HuggingFaceEndpoint,ChatHuggingFace
+import streamlit as st
 from LLM_Tools import search,wiki_summary,logical_fallacies_retriever,get_json
 from prompts import research_system_prompt,web_search_agent_prompt,quick_response_system_prompt,follow_up_system_instructions
-from langchain_ollama import ChatOllama
 from langchain.agents import create_agent
-from langchain_community.llms.fake import FakeListLLM
 from langchain_core.output_parsers import JsonOutputParser
 from langchain_groq import ChatGroq;
 import time
-path = Path('/home/gz/Documents/Rebuttal AI/.env')
-load_dotenv(dotenv_path=path)
-api_token = os.environ['GROQ_API_TOKEN']
-# 'openai/gpt-oss-120b'
+api_token = st.secret['GROQ_API_TOKEN']
+
+
 class Agent:
 
     def __init__(self):
-        '''self.hf_model = HuggingFaceEndpoint(
-                    repo_id='openai/gpt-oss-20b',
-                    task="conversational",
-                    max_new_tokens=2000,
-                    huggingfacehub_api_token=api_token
-                )'''
+      
         
-        #self.llm = ChatOllama(model='qwen3:8b', temperature=0,num_ctx=5000)
         self.llm = ChatGroq(
                    api_key=api_token,
                    model='openai/gpt-oss-20b',
@@ -34,7 +22,6 @@ class Agent:
         
 
         
-        #ChatHuggingFace(llm=self.hf_model)
         self.research_Agent = create_agent(
             model=self.llm,
             tools=[search,logical_fallacies_retriever,wiki_summary],
@@ -182,28 +169,3 @@ class Agent:
 
         
 
-user_input = f"""
-                  Claim:
-                    Tariffs on imported goods always protect local jobs and boost domestic businesses.
-
-                    Requested style:
-                    Academic
-
-                    Requested length:
-                    Long
-
-                    """
-
-
-
-
-
-'''
-agent = Agent()
-agent.debug_get_agent_response(user_input,agent.research_Agent)
-res = agent.research_agent_response(claim=user_input)
-print(res)
-print(res['details'])
-print(res[
-    'counter_argument'])
-'''
