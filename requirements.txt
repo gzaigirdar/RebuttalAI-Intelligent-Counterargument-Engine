@@ -2,10 +2,8 @@ langchain
 streamlit
 langchain-core
 langchain-ollama 
-PyPDFLoader
 langchain_community
 ddgs
-pypdf
 duckduckgo-search
 wikipedia
 langchain-core
