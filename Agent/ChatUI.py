@@ -1,6 +1,7 @@
 import streamlit as st
 from langchain_core.output_parsers import StrOutputParser
 import markdown
+
 class ChatBubble:
     def __init__(self,bg_color=None):
         self.bg_color = None
@@ -58,7 +59,10 @@ class ChatBubble:
 
             
         else:
-            content = markdown.markdown(content)
+            
+            content = markdown.markdown(content,
+                                        extensions=['extra', 'nl2br']
+                                        )
             chat_box= self.chat_style.format(align=align,content=content,bg_color=bg_color,id=f"chat_{id}")
             st.markdown(
                 chat_box,

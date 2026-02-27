@@ -83,7 +83,6 @@ class Agent:
         result = self.research_Agent.invoke(prompt)
         response = result["messages"][-1].content
         tool_calls = result.get("tool_calls", [])
-        print(tool_calls)
         return self.parser.parse(response)
         
         
@@ -109,16 +108,23 @@ class Agent:
         result =self.llm.invoke(messages)
         return self.parser.parse(result.content)
         
-    def follow_up(self,history,question):
-        prompt = f'History: {history}, \n query: {question}'
+    def follow_up(self, history, question):
+    
+        formatted_history = "\n".join(
+            [f"{msg['role']}: {msg['content']}" for msg in history]
+        )
+        
+        prompt = f"History:\n{formatted_history}\n\nQuery: {question}"
+        
         messages = [
-        (
-            "system",
-            follow_up_system_instructions,
-        ),
-        ("human", prompt),]
+            ("system", follow_up_system_instructions),
+            ("human", prompt),
+        ]
+        
         result = self.llm.invoke(messages)
-        return result.content
+        
+        
+        return result.content.strip()
     def MockLLMCall(self,claim):
         fake_json2 = {
             "response": ''' Computer science is the study of computation, information, and automation.[1][2][3] Included broadly in the sciences, 
