@@ -21,16 +21,16 @@ Rebuttal AI is designed to work with smaller, efficient models, optimizing perfo
 so local Ollama Models(Qwen:8b), and hugging face models were used during development.Groq models were used for perfomance testing and delployment.
 
 How to run the app:
-# Create virtual environment
+## Create virtual environment
 python -m venv venv
 
-# Install dependencies
+## Install dependencies
 pip3 install -r requirements.txt
 
-# Select backend (Ollama, Hugging Face, Groq)
-# Modify LLM_Agent.py accordingly
+## Select backend (Ollama, Hugging Face, Groq)
+ Modify LLM_Agent.py accordingly
 
-# Run the app
+## Run the app
 streamlit run App.py
 
 
