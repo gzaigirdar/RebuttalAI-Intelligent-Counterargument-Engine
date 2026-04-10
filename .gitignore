@@ -1,4 +1,6 @@
 .venv
 .env
+.vscode
 .continue
-/extras 
+Agent/extras 
+Agent/__pycache__/
