@@ -15,8 +15,8 @@ class Agent:
         
         self.llm = ChatGroq(
                    api_key=api_token,
-                   model='qwen/qwen3-32b',
-                   max_tokens=5000
+                   model='qwen/qwen3.6-27b',
+                   max_tokens=6000
         )
         self.parser = JsonOutputParser()
         

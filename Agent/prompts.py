@@ -58,7 +58,7 @@ Only produce the dictionary text.
 
 {
   "response": "<final answer>",
-  "details": "<any details or brief notes on reasoning or key assumption, evidence.>"
+  "details": "<any details or brief notes on reasoning or key assumption, evidence, and cite your source here if available.>"
 }
 
 
@@ -133,7 +133,7 @@ Only produce the dictionary text.
 
 {
   "response": "<final answer>",
-  "details": "<any details or brief notes on reasoning or key assumption, evidence.>"
+  "details": "<any details or brief notes on reasoning or key assumption, evidence.cite your source here if available.>"
 }
 
 
