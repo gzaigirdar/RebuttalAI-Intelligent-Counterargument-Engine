@@ -27,8 +27,8 @@ class Agent:
         #self.llm = ChatOllama(model='qwen3:8b', temperature=0,num_ctx=5000)
         self.llm = ChatGroq(
                    api_key=api_token,
-                   model='qwen/qwen3.6-27b',
-                   max_tokens=6000
+                   model='openai/gpt-oss-120b',
+                   max_tokens=8000
         )
         self.parser = JsonOutputParser()
         
