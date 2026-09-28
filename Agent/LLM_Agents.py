@@ -15,10 +15,12 @@ import time
 path = Path('/home/gz/Documents/Rebuttal AI/.env')
 load_dotenv(dotenv_path=path)
 api_token = os.environ['API_TOKEN']
-# 'openai/gpt-oss-120b'
+
+DEFAULT_RECURSION_LIMIT = int(os.environ.get("AGENT_RECURSION_LIMIT", "6"))
+
 class Agent:
 
-    def __init__(self):
+    def __init__(self, recursion_limit: int = DEFAULT_RECURSION_LIMIT):
         '''self.hf_model = HuggingFaceEndpoint(
                     repo_id='openai/gpt-oss-20b',
                     task="conversational",
@@ -41,6 +43,8 @@ class Agent:
             timeout=30
         )
         self.parser = JsonOutputParser()
+        # Recursive limit applied to every agent.invoke()/stream() call below.
+        self.recursion_limit = recursion_limit
         # Follow-ups carry conversation history, so they need a higher
         # output budget than the single-shot agents (1500).
         self.followup_llm = ChatOpenAI(
@@ -69,16 +73,16 @@ class Agent:
         ) 
     
     
-    def debug_get_agent_response(self, inputs,agent):  
+    def debug_get_agent_response(self, inputs, agent, recursion_limit: int | None = None):
         prompt= {
         "messages": [{"role": "user", "content": inputs}]
         }
-    
+
         
         start_time = time.time()
         for chunk in agent.stream(
             prompt,
-            
+            config={"recursion_limit": recursion_limit or self.recursion_limit},
         ):
             print("\n" + "="*50)
             print("STEP:")
@@ -98,12 +102,15 @@ class Agent:
         print("="*50)
         print(final_result)
     
-    def research_agent_response(self, claim):
+    def research_agent_response(self, claim, recursion_limit: int | None = None):
         prompt= {
         "messages": [{"role": "user", "content": claim}]
         }
       
-        result = self.research_Agent.invoke(prompt, config={"recursion_limit": 6})
+        result = self.research_Agent.invoke(
+            prompt,
+            config={"recursion_limit": recursion_limit or self.recursion_limit},
+        )
         response = result["messages"][-1].content
        
         #tool_calls = result.get("tool_calls", [])
@@ -111,11 +118,14 @@ class Agent:
         
         
         
-    def websearch_agent_response(self,claim):
+    def websearch_agent_response(self,claim, recursion_limit: int | None = None):
         prompt= {
         "messages": [{"role": "user", "content": claim}]
         }
-        result = self.web_search_agent.invoke(prompt, config={"recursion_limit": 6})
+        result = self.web_search_agent.invoke(
+            prompt,
+            config={"recursion_limit": recursion_limit or self.recursion_limit},
+        )
         
         
         response = result["messages"][-1].content
