@@ -4,7 +4,7 @@ class Sidebar:
     def __init__(self):
        
         self.types = ["Casual","Academic","Social Media", "Witty"]
-        self.agent_types = ["Web Agent","Research",'Fast']
+        self.agent_types = ["Fast", "Web Agent", "Research"]
         self.length_types = ['Long','Medium','Short']
         self.response_option = ['Rebuttal','Follow Up']
     def render_sidebar(self):

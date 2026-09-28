@@ -234,12 +234,29 @@ if prompt := st.chat_input("Enter your argument..."):
 
         st.session_state.messages.append({"role": "user", "content": prompt, 'type': sidebar.response_type,'id':user_id})
 
-        with st.spinner("In progress..."):
-            if sidebar.response_type == 'Rebuttal':
-                agent_prompt = f'claim:{prompt} \n style:{sidebar.debate_style}\n length:{sidebar.length}'
-                res = agent_router(sidebar.AI_type, prompt=agent_prompt)
-            else:
-                res = agent_router(agent_type='Follow Up', prompt=prompt, history=st.session_state.messages)
+        writing_html = """
+        <style>
+        @keyframes blink { 0%, 80%, 100% { opacity: 0; } 40% { opacity: 1; } }
+        .writing-dots span { animation: blink 1.2s infinite; font-size: 20px; }
+        .writing-dots span:nth-child(2) { animation-delay: 0.2s; }
+        .writing-dots span:nth-child(3) { animation-delay: 0.4s; }
+        </style>
+        <div style="display:flex;align-items:center;gap:8px;color:#FFD93D;font-weight:700;font-style:italic;margin:8px 0;text-shadow:0 0 8px rgba(255,217,61,0.6);">
+            <div>✍️ Writing</div>
+            <div class="writing-dots"><span>.</span><span>.</span><span>.</span></div>
+        </div>
+        """
+        with chat_holder:
+            writing_placeholder = st.empty()
+            writing_placeholder.markdown(writing_html, unsafe_allow_html=True)
+            try:
+                if sidebar.response_type == 'Rebuttal':
+                    agent_prompt = f'claim:{prompt} \n style:{sidebar.debate_style}\n length:{sidebar.length}'
+                    res = agent_router(sidebar.AI_type, prompt=agent_prompt)
+                else:
+                    res = agent_router(agent_type='Follow Up', prompt=prompt, history=st.session_state.messages)
+            finally:
+                writing_placeholder.empty()
 
             
             bot_id = ids + 1

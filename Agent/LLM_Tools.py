@@ -6,22 +6,29 @@ from langchain_community.embeddings import OllamaEmbeddings
 from langchain_community.utilities import WikipediaAPIWrapper
 
 
-api_wrapper = WikipediaAPIWrapper(top_k_results=2, doc_content_chars_max=2000)
+api_wrapper = WikipediaAPIWrapper(top_k_results=1, doc_content_chars_max=1500)
 wikipedia_tool = WikipediaQueryRun(api_wrapper=api_wrapper)
 search_tool = DuckDuckGoSearchRun()
 #wiki_retriever = WikipediaRetriever()
-embedding_model = OllamaEmbeddings(model="qwen3-embedding:0.6b")
 
-vector_db = FAISS.load_local(
-    "/home/gz/Documents/Rebuttal AI/Agent/Logical_Fallacies_DB",
-    embedding_model,
-    allow_dangerous_deserialization=True,  # trusted local DB only
-)
+# Lazy-loaded only for Research agent (logical_fallacies_retriever).
+# This avoids connecting to Ollama / loading FAISS on startup for Fast/Web agents.
+_db_retriever = None
 
-db_retriever = vector_db.as_retriever(
-    search_type="similarity",
-    search_kwargs={"k": 2},
-)
+def _get_db_retriever():
+    global _db_retriever
+    if _db_retriever is None:
+        embedding_model = OllamaEmbeddings(model="qwen3-embedding:0.6b")
+        vector_db = FAISS.load_local(
+            "/home/gz/Documents/Rebuttal AI/Agent/Logical_Fallacies_DB",
+            embedding_model,
+            allow_dangerous_deserialization=True,  # trusted local DB only
+        )
+        _db_retriever = vector_db.as_retriever(
+            search_type="similarity",
+            search_kwargs={"k": 2},
+        )
+    return _db_retriever
 
 @tool
 def search(query:str) -> str:
@@ -56,22 +63,31 @@ def wiki_summary(query: str) -> str:
         query: Topic or entity to search for.
         
     """
-    docs = wikipedia_tool.run(query)
-    if not docs:
-        return "No Wikipedia results found."
+    try:
+        docs = wikipedia_tool.run(query)
 
+        if not docs:
+            return "No Wikipedia results found."
+
+     
+        return str(docs)[:1500]
+
+    except Exception as e:
+        return f"Wikipedia lookup failed: {e}"
+   
     
-    return docs
 @tool
 def logical_fallacies_retriever(query: str) -> str:
     """
     Retrieve definitions and examples of logical fallacies relevant to an argument or description.
     """
+    db_retriever = _get_db_retriever()
     docs = db_retriever.invoke(query)
     if not docs:
         return "No matching logical fallacies found."
 
-    return "\n\n".join(doc.page_content for doc in docs)
+    
+    return "\n\n".join(doc.page_content for doc in docs)[:1500]
 
 @tool 
 def get_json(details:str,response:str) -> dict:
