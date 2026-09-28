@@ -6,7 +6,7 @@ from langchain_community.embeddings import OllamaEmbeddings
 from langchain_community.utilities import WikipediaAPIWrapper
 
 
-api_wrapper = WikipediaAPIWrapper(top_k_results=1, doc_content_chars_max=1000)
+api_wrapper = WikipediaAPIWrapper(top_k_results=1, doc_content_chars_max=1500)
 wikipedia_tool = WikipediaQueryRun(api_wrapper=api_wrapper)
 search_tool = DuckDuckGoSearchRun()
 #wiki_retriever = WikipediaRetriever()
@@ -69,7 +69,8 @@ def wiki_summary(query: str) -> str:
         if not docs:
             return "No Wikipedia results found."
 
-        return docs
+     
+        return str(docs)[:1500]
 
     except Exception as e:
         return f"Wikipedia lookup failed: {e}"
@@ -85,7 +86,8 @@ def logical_fallacies_retriever(query: str) -> str:
     if not docs:
         return "No matching logical fallacies found."
 
-    return "\n\n".join(doc.page_content for doc in docs)
+    
+    return "\n\n".join(doc.page_content for doc in docs)[:1500]
 
 @tool 
 def get_json(details:str,response:str) -> dict:

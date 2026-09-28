@@ -134,8 +134,8 @@ class Agent:
         return self.parser.parse(result.content)
         
     def follow_up(self, history, question):
-        # Keep a larger window (last 20 msgs) since follow-ups need context.
-        # Cap each message so one long rebuttal can't blow the context window.
+        # larger window of last 20 msgs for follow ups as context.
+        # Capping each message so one long rebuttal can't exceed the context window.
         recent = history[-20:]
         lines = []
         for msg in recent:
