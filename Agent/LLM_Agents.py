@@ -8,11 +8,13 @@ from langchain_ollama import ChatOllama
 from langchain.agents import create_agent
 from langchain_community.llms.fake import FakeListLLM
 from langchain_core.output_parsers import JsonOutputParser
-from langchain_groq import ChatGroq;
+from langchain_groq import ChatGroq
+from langchain_openai import ChatOpenAI
 import time
+
 path = Path('/home/gz/Documents/Rebuttal AI/.env')
 load_dotenv(dotenv_path=path)
-api_token = os.environ['GROQ_API_TOKEN']
+api_token = os.environ['API_TOKEN']
 # 'openai/gpt-oss-120b'
 class Agent:
 
@@ -25,12 +27,29 @@ class Agent:
                 )'''
         
         #self.llm = ChatOllama(model='qwen3:8b', temperature=0,num_ctx=5000)
-        self.llm = ChatGroq(
+        ''' self.llm = ChatGroq(
                    api_key=api_token,
                    model='openai/gpt-oss-120b',
                    max_tokens=8000
+        )'''
+        self.llm = ChatOpenAI(
+            api_key = api_token,
+            # mistralai/Mistral-7B-Instruct-v0.3
+            model='openai/gpt-oss-120b-Turbo',
+            base_url="https://api.deepinfra.com/v1/openai",
+            max_tokens=1500,
+            timeout=30
         )
         self.parser = JsonOutputParser()
+        # Follow-ups carry conversation history, so they need a higher
+        # output budget than the single-shot agents (1500).
+        self.followup_llm = ChatOpenAI(
+            api_key = api_token,
+            model=self.llm.model_name,
+            base_url="https://api.deepinfra.com/v1/openai",
+            max_tokens=4000,
+            timeout=30
+        )
         
 
         
@@ -56,7 +75,7 @@ class Agent:
         }
     
         
-       
+        start_time = time.time()
         for chunk in agent.stream(
             prompt,
             
@@ -69,20 +88,25 @@ class Agent:
         
         # Last chunk IS the final result
         final_result = chunk
+        end_time = time.time()
+        total_time = end_time-start_time
+        print(round(total_time))
         
         # Print final answer
         print("\n" + "="*50)
         print("FINAL ANSWER:")
         print("="*50)
         print(final_result)
+    
     def research_agent_response(self, claim):
         prompt= {
         "messages": [{"role": "user", "content": claim}]
         }
-    
-        result = self.research_Agent.invoke(prompt)
+      
+        result = self.research_Agent.invoke(prompt, config={"recursion_limit": 6})
         response = result["messages"][-1].content
-        tool_calls = result.get("tool_calls", [])
+       
+        #tool_calls = result.get("tool_calls", [])
         return self.parser.parse(response)
         
         
@@ -91,10 +115,11 @@ class Agent:
         prompt= {
         "messages": [{"role": "user", "content": claim}]
         }
-        result = self.web_search_agent.invoke(prompt)
+        result = self.web_search_agent.invoke(prompt, config={"recursion_limit": 6})
         
         
         response = result["messages"][-1].content
+      
 
         return self.parser.parse(response)
     
@@ -109,10 +134,16 @@ class Agent:
         return self.parser.parse(result.content)
         
     def follow_up(self, history, question):
-    
-        formatted_history = "\n".join(
-            [f"{msg['role']}: {msg['content']}" for msg in history]
-        )
+        # Keep a larger window (last 20 msgs) since follow-ups need context.
+        # Cap each message so one long rebuttal can't blow the context window.
+        recent = history[-20:]
+        lines = []
+        for msg in recent:
+            content = msg.get('content', '')
+            if isinstance(content, dict):
+                content = content.get('response', '') + "\nDetails: " + str(content.get('details', ''))[:1000]
+            lines.append(f"{msg.get('role', 'user')}: {str(content)[:2000]}")
+        formatted_history = "\n".join(lines)
         
         prompt = f"History:\n{formatted_history}\n\nQuery: {question}"
         
@@ -121,7 +152,7 @@ class Agent:
             ("human", prompt),
         ]
         
-        result = self.llm.invoke(messages)
+        result = self.followup_llm.invoke(messages)
         
         
         return result.content.strip()
@@ -200,8 +231,10 @@ user_input = f"""
 
 '''
 agent = Agent()
-agent.debug_get_agent_response(user_input,agent.research_Agent)
+#agent.debug_get_agent_response(user_input,agent.research_Agent)
+
 res = agent.research_agent_response(claim=user_input)
+
 print(res)
 print(res['details'])
 print(res[
