@@ -12,7 +12,7 @@ from langchain_groq import ChatGroq;
 import time
 path = Path('/home/gz/Documents/Rebuttal AI/.env')
 load_dotenv(dotenv_path=path)
-api_token = os.environ['GROQ_API_TOKEN']
+api_token = os.environ['API_TOKEN']
 # 'openai/gpt-oss-120b'
 class Agent:
 
@@ -27,8 +27,8 @@ class Agent:
         #self.llm = ChatOllama(model='qwen3:8b', temperature=0,num_ctx=5000)
         self.llm = ChatGroq(
                    api_key=api_token,
-                   model='openai/gpt-oss-120b',
-                   max_tokens=8000
+                   model='openai/gpt-oss-120b-Turbo',
+                   max_tokens=3000
         )
         self.parser = JsonOutputParser()
         
