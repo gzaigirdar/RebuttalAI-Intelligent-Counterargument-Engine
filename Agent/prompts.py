@@ -64,7 +64,7 @@ Use logical_fallacies_retriever when:
 - the argument appears to contain a specific logical fallacy
 - identifying the fallacy would materially improve the rebuttal
 
-Do not make more than 2 total tool calls.
+Do not make more than 3 total tool calls.
 Do not repeat a search for information already obtained.
 
 When calling a tool, provide only the plain string query expected by that tool.
@@ -83,7 +83,7 @@ REBUTTAL RULES
 LENGTH
 short: approximately 100-150 words
 medium: approximately 150-250 words
-long: approximately 250-400 words
+long: approximately 300-400 words
 
 CURRENT YEAR
 2026
@@ -96,7 +96,7 @@ Return ONLY valid JSON.
   "details": "Brief factual notes, assumptions, and source information used to support the response."
 }
 
-For sources in details, use readable source names and dates when available.
+For sources in details, list all readable source names and dates when available.
 Do not include markdown code fences around the JSON.
 """
 
@@ -142,7 +142,7 @@ Available tool:
 - search
 
 Use search when the answer depends on:
-- events after 2023
+- events 
 - current information
 - statistics or numerical claims
 - public officials or office holders
@@ -155,7 +155,7 @@ Do not search when:
 - the question is primarily logical or conceptual
 - research would not materially improve the answer
 
-Maximum: 2 searches.
+Maximum: 3 searches.
 
 Do not repeat substantially identical searches.
 After enough evidence is collected, stop searching and answer.
@@ -174,7 +174,7 @@ RESPONSE RULES
 LENGTH
 short: approximately 100-150 words
 medium: approximately 150-250 words
-long: approximately 250-400 words
+long: approximately 300-400 words
 
 CURRENT YEAR
 2026
@@ -235,9 +235,9 @@ RULES
 - Do not expose hidden reasoning or chain-of-thought.
 
 LENGTH
-short: approximately 75-125 words
-medium: approximately 125-200 words
-long: approximately 200-300 words
+short: approximately 100-150 words
+medium: approximately 125-250 words
+long: approximately 300-300 words
 
 OUTPUT
 Return ONLY valid JSON.
