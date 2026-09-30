@@ -42,6 +42,16 @@ class Agent:
             max_tokens=1500,
             timeout=30
         )
+        self.research_llm = ChatOpenAI(
+            api_key = api_token,
+            # mistralai/Mistral-7B-Instruct-v0.3
+            model='deepseek-ai/DeepSeek-V4.1-Flash',
+            base_url="https://api.deepinfra.com/v1/openai",
+            max_tokens=1500,
+            timeout=50,
+            
+
+        )
         self.parser = JsonOutputParser()
         # Recursive limit applied to every agent.invoke()/stream() call below.
         self.recursion_limit = recursion_limit
@@ -59,7 +69,7 @@ class Agent:
         
         #ChatHuggingFace(llm=self.hf_model)
         self.research_Agent = create_agent(
-            model=self.llm,
+            model=self.research_llm,
             tools=[search,logical_fallacies_retriever,wiki_summary],
             system_prompt=research_system_prompt,
             
@@ -163,9 +173,13 @@ class Agent:
         ]
         
         result = self.followup_llm.invoke(messages)
+        result = self.parser.parse(result.content)
+        
+        result = result["response"]
         
         
-        return result.content.strip()
+        
+        return result
     def MockLLMCall(self,claim):
         fake_json2 = {
             "response": ''' Computer science is the study of computation, information, and automation.[1][2][3] Included broadly in the sciences, 

@@ -296,8 +296,8 @@ OUTPUT
 Return ONLY valid JSON.
 
 {
-  "response": "The direct answer to the user's follow-up.",
-  "details": "Brief supporting context, assumptions, or limitations when useful."
+  "response": "The direct answer to the user's follow-up."
+  
 }
 
 Do not include markdown code fences around the JSON.
