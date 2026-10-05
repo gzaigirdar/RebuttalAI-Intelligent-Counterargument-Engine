@@ -1,39 +1,207 @@
-## Rebuttal AI – Agentic Counterargument System
+# Rebuttal AI – Agentic Counterargument System
 
-Rebuttal AI is an agentic AI system designed to autonomously generate fact driven counterarguments to user provided statements or claims. Using integrated tools such as web search, Wikipedia summaries, and a logical fallacies knowledge base. Rebuttal AI analyzes claims and produces structured, evidence backed rebuttals without requiring any additional instructions from the user.
+Rebuttal AI is an agentic AI system designed to autonomously generate fact-driven counterarguments to user-provided statements and claims.
 
-### Demo App is deployed in streamlit  cloud:
-[App link](https://refuteai.streamlit.app/)
+The system uses multiple specialized agents together with external tools such as web search, Wikipedia retrieval, and a FAISS-based logical fallacy knowledge base. Based on the selected agent mode, Rebuttal AI can generate a quick response, gather current information from the web, or perform a deeper evidence-based analysis.
 
-User Interaction:
-Users interact with Rebuttal AI in a simple, intuitive way by prroviding a claim or statement.
-Use can customize their coutner to their liking by selecting  preferences such as Style (academic, social media, casual, witty)Response length(short, medium, long) and Agent type(web agent, research agent, fast agent)
-Follow up conversations are supported for users who want more information, clarification, or wish to engage in a discussion regarding the claim and counterargument.
+The application also supports follow-up conversations, allowing users to ask for clarification, additional evidence, or continue discussing the original claim.
 
-System Architecture:
-Rebuttal AI uses multiple agents that wre built with LangChain and LangGraph, integrating agents, tools, and utility functions.
-there agents were created such as Web Agent(response with web seearch tool), Research Agent(deep researched based), Fast Agent(quick response without tools), each with diffirent prompt and purposes. (LLM_Agents.Py)
+## Live Application
 
-Frontend was developed with Streamlit and custom CSS for a user friendly, visually polished interface.(App.py,SidebarUI.py,ChatUi.py)
+Rebuttal AI is deployed on an Oracle Cloud VPS:
 
-Prompts were carefully curated to maximize reasoning and response quality for smaller models, covering different agent types and follow up behaviors. There sytem prompts are Research Prompts, Web Agent Prompts, Fast Agent Prompts, Follow-up Prompts.(prompts.py)
+[https://rebuttalai.online/](https://rebuttalai.online/)
 
-The three integrated tools are DuckDuckGo Search API,Wikipedia Summary API,Logical Fallacies Vector DB(built using FAISS, storing definitions and examples of common logical fallacies to detect flaws in claims.) (LLM_Tools.py,create&save_vector_store.ipynb.)
+## Features
 
-Rebuttal AI is designed to work with smaller, efficient models, optimizing performance without requiring extremely large LLMs.
-so local Ollama Models(Qwen:8b), and hugging face models were used during development.Groq models were used for perfomance testing and delployment.
+Users provide a claim or statement and can customize the generated counterargument using:
 
-How to run the app:
-## Create virtual environment
-python -m venv venv
+- **Agent Type**
+  - Fast Agent
+  - Web Agent
+  - Research Agent
 
-## Install dependencies
-pip3 install -r requirements.txt
+- **Response Style**
+  - Academic
+  - Casual
+  - Social Media
+  - Witty
 
-## Select backend (Ollama, Hugging Face, Groq)
- Modify LLM_Agent.py accordingly
+- **Response Length**
+  - Short
+  - Medium
+  - Long
 
-## Run the app
-streamlit run App.py
+- **Follow-up Conversation**
+  - Ask for clarification
+  - Request additional evidence
+  - Continue discussing the original argument
+  - Maintain recent conversation context
 
+## Agent Architecture
 
+Rebuttal AI uses multiple specialized agents built with LangChain and LangGraph.
+
+### Fast Agent
+
+Generates quick counterarguments without calling external retrieval tools. This mode is intended for claims that can be addressed directly by the language model.
+
+### Web Agent
+
+Uses web search and Wikipedia retrieval to gather additional information before generating a counterargument.
+
+### Research Agent
+
+Performs a more detailed analysis using retrieval tools and external evidence. This mode is designed for claims that require deeper research and reasoning.
+
+Each agent uses its own system prompt and workflow based on its specific purpose.
+
+Agent implementation:
+
+`LLM_Agents.py`
+
+## Retrieval and Tools
+
+Rebuttal AI integrates three primary tools:
+
+### DuckDuckGo Search
+
+Provides web search capabilities for retrieving current information related to a user's claim.
+
+### Wikipedia Retrieval
+
+Retrieves concise background information and summaries for relevant topics.
+
+### Logical Fallacies Vector Database
+
+A FAISS vector database stores definitions and examples of common logical fallacies.
+
+Relevant information is retrieved through semantic similarity, allowing the system to identify reasoning patterns that may be present in a user's claim.
+
+Tool implementation:
+
+`LLM_Tools.py`
+
+Vector database creation:
+
+`create&save_vector_store.ipynb`
+
+## Prompt Engineering
+
+Different system prompts were created for each agent and interaction type:
+
+- Research Agent Prompt
+- Web Agent Prompt
+- Fast Agent Prompt
+- Follow-up Prompt
+
+The prompts define how agents analyze claims, use retrieved information, structure responses, and follow the user's selected response style.
+
+Prompt definitions:
+
+`prompts.py`
+
+## Models and Inference
+
+Rebuttal AI was designed to work with multiple model providers and model sizes.
+
+During development, the system was tested with:
+
+- Local Ollama models such as Qwen
+- Hugging Face models
+- DeepInfra-hosted models
+
+The current agent configuration uses:
+
+- **GPT-OSS-120B** for the Fast and Web agents
+- **DeepSeek Flash V1** for the Research agent
+- **Qwen embedding model through Ollama** for semantic retrieval
+
+This architecture allows different models to be assigned to different agents based on response speed, reasoning requirements, and task complexity.
+
+## Frontend
+
+The user interface was developed with Streamlit and custom CSS.
+
+The interface provides:
+
+- Interactive chat
+- Agent selection
+- Response style selection
+- Response length controls
+- Follow-up conversations
+- Display of generated counterarguments and supporting information
+
+Frontend components include:
+
+- `App.py`
+- `SidebarUI.py`
+- `ChatUi.py`
+
+## Deployment
+
+The production application is deployed on an Ubuntu-based Oracle Cloud VPS.
+
+The deployment architecture is:
+
+User → HTTPS → Nginx → Streamlit
+
+The Streamlit application runs internally on:
+
+`127.0.0.1:8501`
+
+and is not directly exposed to the public internet.
+
+Nginx is used as a reverse proxy between the public website and the Streamlit backend.
+
+The deployment includes:
+
+- Oracle Cloud VPS
+- Dockerized Streamlit application
+- Nginx reverse proxy
+- WebSocket proxy support
+- Custom domain configuration
+- OCI network security rules
+- UFW firewall configuration
+- Per-IP request rate limiting
+- Per-IP connection limiting
+- Separate static asset rate limiting
+- HTTPS using Let's Encrypt
+- Automatic TLS certificate renewal with Certbot
+
+The application is available at:
+
+[https://rebuttalai.online/](https://rebuttalai.online/)
+
+## Security and Reliability
+
+Several protections were added to the production deployment:
+
+- Streamlit is restricted to localhost and cannot be accessed directly from the internet.
+- Nginx acts as the public-facing reverse proxy.
+- OCI and UFW firewall rules restrict exposed ports.
+- Per-IP request limits help reduce excessive traffic.
+- Concurrent connection limits reduce abusive connection usage.
+- Static resources use separate rate limits to prevent normal Streamlit page loading from being blocked.
+- HTTPS encrypts communication between users and the server.
+- Let's Encrypt certificates are automatically renewed using Certbot.
+
+Nginx access and error logs were also used to diagnose and resolve production issues including `502 Bad Gateway` and `503 Service Temporarily Unavailable` errors.
+
+## Project Structure
+
+```text
+RebuttalAI/
+│
+├── Agent/
+│   ├── App.py
+│   ├── LLM_Agents.py
+│   ├── LLM_Tools.py
+│   ├── prompts.py
+│   ├── SidebarUI.py
+│   ├── ChatUi.py
+│   └── Logical_Fallacies_DB/
+│
+├── create&save_vector_store.ipynb
+├── requirements.txt
+└── README.md
